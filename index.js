@@ -51,7 +51,7 @@ server.post('/api/login', (req, res) => {
 
 // restrict access to this endpoints to only users that provide the right credentials in the headers
 
-server.get('/api/users', restricted, (req, res) => {
+server.get('/api/users', restricted, only('Joe'), (req, res) => {
   let { username, password } = req.headers
 
   Users.find()
@@ -62,7 +62,17 @@ server.get('/api/users', restricted, (req, res) => {
   
 });
 
-function restricted(req,res,next) {
+function only (username) {
+  return function (req, res, next) {
+    if (username === req.headers.username) {
+      next()
+    } else {
+      res.status(403).json({message: "Forbidden"})
+    }
+  }
+}
+
+function restricted (req,res,next) {
   const { username, password } = req.headers;
 
   if (username && password) {

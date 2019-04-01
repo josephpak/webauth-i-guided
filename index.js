@@ -65,7 +65,8 @@ server.get('/api/users', restricted, (req, res) => {
 function restricted(req,res,next) {
   const { username, password } = req.headers;
 
-  Users.findBy({ username })
+  if (username && password) {
+    Users.findBy({ username })
     .first()
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
@@ -77,6 +78,10 @@ function restricted(req,res,next) {
     .catch(error => {
       res.status(500).json(error)
     })
+  } else {
+    res.status(401).json({ message: "Please provide credentials" })
+  }
+  
 }
 
 const port = process.env.PORT || 5000;
